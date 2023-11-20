@@ -67,6 +67,7 @@ class BlocConsumer<B extends StateStreamable<S>, S> extends StatefulWidget {
     this.bloc,
     this.buildWhen,
     this.listenWhen,
+    this.searchCallback,
   }) : super(key: key);
 
   /// The [bloc] that the [BlocConsumer] will interact with.
@@ -94,6 +95,9 @@ class BlocConsumer<B extends StateStreamable<S>, S> extends StatefulWidget {
   /// [BlocConsumer] with the current `state`.
   final BlocListenerCondition<S>? listenWhen;
 
+  // TODO: add docs
+  final SearchCallback<B>? searchCallback;
+
   @override
   State<BlocConsumer<B, S>> createState() => _BlocConsumerState<B, S>();
 }
@@ -105,13 +109,17 @@ class _BlocConsumerState<B extends StateStreamable<S>, S>
   @override
   void initState() {
     super.initState();
-    _bloc = widget.bloc ?? context.read<B>();
+    _bloc = widget.bloc ?? context.read<B>(
+      searchCallback: widget.searchCallback,
+    );
   }
 
   @override
   void didUpdateWidget(BlocConsumer<B, S> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final oldBloc = oldWidget.bloc ?? context.read<B>();
+    final oldBloc = oldWidget.bloc ?? context.read<B>(
+      searchCallback: widget.searchCallback,
+    );
     final currentBloc = widget.bloc ?? oldBloc;
     if (oldBloc != currentBloc) _bloc = currentBloc;
   }
@@ -119,7 +127,9 @@ class _BlocConsumerState<B extends StateStreamable<S>, S>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final bloc = widget.bloc ?? context.read<B>();
+    final bloc = widget.bloc ?? context.read<B>(
+      searchCallback: widget.searchCallback,
+    );
     if (_bloc != bloc) _bloc = bloc;
   }
 
@@ -128,7 +138,10 @@ class _BlocConsumerState<B extends StateStreamable<S>, S>
     if (widget.bloc == null) {
       // Trigger a rebuild if the bloc reference has changed.
       // See https://github.com/felangel/bloc/issues/2127.
-      context.select<B, bool>((bloc) => identical(_bloc, bloc));
+      context.select<B, bool>(
+        (bloc) => identical(_bloc, bloc),
+        searchCallback: widget.searchCallback,
+      );
     }
     return BlocBuilder<B, S>(
       bloc: _bloc,
