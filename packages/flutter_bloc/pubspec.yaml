@@ -13,7 +13,8 @@ dependencies:
   flutter:
     sdk: flutter
   bloc: ^8.0.2
-  provider: ^6.0.0
+  provider:
+    git: https://github.com/Ayad-Ben-Saliem/provider.git
 
 dev_dependencies:
   flutter_test:
